@@ -375,7 +375,7 @@
 
     .metrics {
       display: grid;
-      grid-template-columns: repeat(5, minmax(0, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
       gap: 14px;
     }
 
@@ -572,6 +572,38 @@
       white-space: nowrap;
     }
 
+    .fit-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .fit-item {
+      border-radius: 16px;
+      padding: 12px;
+      font-size: 13px;
+      line-height: 1.45;
+      border: 1px solid var(--line);
+      background: white;
+    }
+
+    .fit-item.good {
+      border-color: var(--good-line);
+      background: var(--good-bg);
+    }
+
+    .fit-item.watch {
+      border-color: var(--amber-line);
+      background: var(--amber-bg);
+      color: var(--amber-ink);
+    }
+
+    .fit-item strong {
+      display: block;
+      color: var(--ink);
+      margin-bottom: 3px;
+    }
+
     .disclaimer {
       border: 1px solid var(--amber-line);
       border-radius: 18px;
@@ -621,7 +653,9 @@
       years: 10,
       discountRate: 5.0,
       benchmarkReturn: 7.0,
-      activePretaxDiff: -0.15,
+      directIndexFee: 0.10,
+      implementationDrag: 0.00,
+      activeTiltAlpha: 0.00,
       trackingError: 1.5,
       volatility: 15.0,
       benchmarkRealizedGains: 2.5,
@@ -787,7 +821,11 @@
       const initial = Math.max(1, p.initialInvestment);
       const years = Math.max(1, Math.round(p.years));
       const benchmarkReturn = p.benchmarkReturn / 100;
-      const baseDirectIndexReturn = (p.benchmarkReturn + p.activePretaxDiff) / 100;
+      const feeDrag = Math.max(0, p.directIndexFee || 0);
+      const implementationDrag = Math.max(0, p.implementationDrag || 0);
+      const activeTiltAlpha = p.activeTiltAlpha || 0;
+      const expectedPretaxDiff = activeTiltAlpha - feeDrag - implementationDrag;
+      const baseDirectIndexReturn = (p.benchmarkReturn + expectedPretaxDiff) / 100;
       const trackingError = Math.max(0, p.trackingError) / 100;
       const ltTaxRate = p.ltTaxRate / 100;
       const stTaxRate = p.stTaxRate / 100;
@@ -973,6 +1011,9 @@
         pvBenchmarkTotalTaxes,
         pvDirectTotalTaxes,
         pvTaxAdvantage,
+        pvHarvestTaxSavings,
+        pvBenchmarkTerminalTax,
+        pvDirectTerminalTax,
         totalHarvestedLosses,
         totalHarvestTaxSavings,
         harvestBenefitRate,
@@ -1226,20 +1267,58 @@
     function benefitWaterfall(result, endingPretaxGap, taxAlphaDollars) {
       return horizontalBars([
         { label: "Benchmark after-tax", value: result.benchmarkAfterTaxEnd, color: "#64748b" },
-        { label: "Pre-tax return diff", value: endingPretaxGap, color: endingPretaxGap >= 0 ? "#0f172a" : "#dc2626" },
+        { label: "Expected pre-tax diff", value: endingPretaxGap, color: endingPretaxGap >= 0 ? "#0f172a" : "#dc2626" },
         { label: "Tax-management value", value: taxAlphaDollars, color: taxAlphaDollars >= 0 ? "#059669" : "#dc2626" },
         { label: "Direct index after-tax", value: result.directAfterTaxEnd, color: "#0f172a" }
       ], dollars);
     }
 
-    function buildStory(result, endingAfterTaxGap, taxAlphaDollars, lossValue, deferralValue) {
+    function feeAlphaBridgeChart(p, result) {
+      const fee = -Math.max(0, p.directIndexFee || 0) / 100;
+      const implementation = -Math.max(0, p.implementationDrag || 0) / 100;
+      const activeTilt = (p.activeTiltAlpha || 0) / 100;
+      return horizontalBars([
+        { label: "Direct indexing fee", value: fee, color: "#dc2626" },
+        { label: "Implementation drag", value: implementation, color: "#dc2626" },
+        { label: "Active tilt alpha/drag", value: activeTilt, color: activeTilt >= 0 ? "#0f172a" : "#dc2626" },
+        { label: "Tax alpha", value: result.taxAlpha, color: result.taxAlpha >= 0 ? "#059669" : "#dc2626" },
+        { label: "Net post-tax relative return", value: result.afterTaxActiveReturn, color: result.afterTaxActiveReturn >= 0 ? "#0f172a" : "#dc2626" }
+      ], v => pct(v));
+    }
+
+    function lossTimingChart(result) {
+      const pvFutureRecapture = Math.max(0, result.pvDirectTerminalTax - result.pvBenchmarkTerminalTax);
+      const pvNetAfterRecapture = result.pvHarvestTaxSavings - pvFutureRecapture;
+      return horizontalBars([
+        { label: "PV harvested-loss savings", value: result.pvHarvestTaxSavings, color: "#059669" },
+        { label: "PV future tax recapture", value: -pvFutureRecapture, color: "#dc2626" },
+        { label: "PV net after recapture", value: pvNetAfterRecapture, color: pvNetAfterRecapture >= 0 ? "#0f172a" : "#dc2626" }
+      ], dollars);
+    }
+
+    function fitChecklist(p, result) {
+      const items = [];
+      const add = (good, title, text) => items.push({ good, title, text });
+      add(p.ltTaxRate >= 25 || p.stTaxRate >= 40, "Tax rate", p.ltTaxRate >= 25 || p.stTaxRate >= 40 ? "Higher tax rates make harvesting and deferral more valuable." : "Lower tax rates reduce the value of tax management.");
+      add(p.volatility >= 14, "Volatility", p.volatility >= 14 ? "More volatility generally creates more harvestable losses." : "Low volatility can limit harvesting opportunity.");
+      add(p.lossUtilization >= 75, "Loss utilization", p.lossUtilization >= 75 ? "The client is assumed able to use most harvested losses." : "Limited loss utilization can reduce realized value.");
+      add(p.years >= 7, "Time horizon", p.years >= 7 ? "Longer horizons give deferral more time to compound." : "Short horizons reduce the compounding power of deferral.");
+      add(!p.terminalLiquidation, "Exit plan", !p.terminalLiquidation ? "Continued deferral can preserve more tax value." : "Full liquidation can recapture part of the tax benefit.");
+      add(Math.abs(result.taxAlpha) > 0.001, "Modeled tax alpha", result.taxAlpha > 0 ? "The scenario shows positive tax alpha after assumptions." : "Tax alpha is low or negative under this setup.");
+      if ((p.startingEmbeddedGainPct || 0) > 25) add(false, "Embedded gain", "Large legacy gains require transition and tax-budget planning.");
+      return `<div class="fit-grid">${items.map(item => `<div class="fit-item ${item.good ? "good" : "watch"}"><strong>${item.good ? "Favorable:" : "Watch:"} ${item.title}</strong>${item.text}</div>`).join("")}</div>`;
+    }
+
+    function buildStory(p, result, endingAfterTaxGap, taxAlphaDollars, lossValue, deferralValue) {
       const direction = result.pretaxActiveReturn >= 0 ? "ahead of" : "behind";
       const afterDirection = result.afterTaxActiveReturn >= 0 ? "ahead of" : "behind";
       const mainEngine = Math.abs(lossValue) >= Math.abs(deferralValue) ? "loss harvesting" : "gain deferral";
+      const feeHurdle = Math.max(0, ((p.directIndexFee || 0) + (p.implementationDrag || 0) - (p.activeTiltAlpha || 0)) / 100);
       return `
         <div class="story-box">
           <strong>Client story:</strong> In this scenario, the direct index is ${direction} the benchmark by <strong>${pct(Math.abs(result.pretaxActiveReturn))}</strong> per year before tax.
-          Tax management adds an estimated <strong>${pct(result.taxAlpha)}</strong> per year, or about <strong>${dollars(taxAlphaDollars)}</strong> of modeled value after removing the pre-tax return difference.
+          The explicit fee/drag hurdle is <strong>${pct(feeHurdle)}</strong>, while modeled tax alpha is <strong>${pct(result.taxAlpha)}</strong>.
+          Tax management adds about <strong>${dollars(taxAlphaDollars)}</strong> of modeled value after removing the expected pre-tax return difference.
           The client ends up ${afterDirection} the benchmark by <strong>${pct(Math.abs(result.afterTaxActiveReturn))}</strong> per year after tax, equal to about <strong>${dollars(endingAfterTaxGap)}</strong> over the horizon.
           In this case, the larger tax lever is <strong>${mainEngine}</strong>.
         </div>
@@ -1325,6 +1404,8 @@
       const taxAlphaDollars = endingAfterTaxGap - endingPretaxGap;
       const terminalPretaxBandText = `${dollars(result.directPretaxLow)} to ${dollars(result.directPretaxHigh)}`;
       const taxAlphaRangeText = `${pct(lowTaxAlpha)} to ${pct(highTaxAlpha)}`;
+      const breakEvenTaxAlpha = Math.max(0, ((params.directIndexFee || 0) + (params.implementationDrag || 0) - (params.activeTiltAlpha || 0)) / 100);
+      const taxAlphaAfterFee = result.taxAlpha - breakEvenTaxAlpha;
       const advancedClass = viewMode === "advanced" ? "" : "hidden";
 
       document.getElementById("app").innerHTML = `
@@ -1374,6 +1455,7 @@
                   ${slider("initialInvestment", "Initial investment", 100000, 10000000, 50000, "", "$", "Starting taxable portfolio value. Larger portfolios create larger dollar effects from the same return and tax assumptions.")}
                   ${slider("years", "Time horizon", 1, 30, 1, " yrs", "", "The number of years the client holds the strategy. Longer horizons make compounding and tax deferral more visible.")}
                   ${slider("benchmarkReturn", "Benchmark return", -5, 15, .25, "%", "", "Expected annual pre-tax benchmark return. Volatility does not change this expected return.")}
+                  ${slider("directIndexFee", "Direct indexing fee", 0, 1, .01, "%", "", "Explicit annual fee or program cost. Default is 0.10%, or 10 bps.")}
                   ${slider("volatility", "Benchmark volatility", 3, 35, .5, "%", "", "A simplified annual volatility assumption. Higher volatility increases expected harvestable losses and widens the tax-alpha range.")}
                   ${slider("trackingError", "Tracking error", 0, 6, .1, "%", "", "Annualized active risk versus the benchmark. It widens the pre-tax and after-tax range but is not expected return by itself.")}
                   ${slider("ltTaxRate", "Long-term tax rate", 0, 45, .25, "%", "", "Combined long-term capital gains tax rate assumption, including federal, state, and surtax if relevant.")}
@@ -1387,7 +1469,8 @@
                 ${sectionHeader("Advanced portfolio inputs", "Use these when an advisor wants more control.", "Advanced inputs handle implementation drag, discounting, contributions, withdrawals, embedded gains, and realized-gain assumptions.")}
                 <div class="controls">
                   ${slider("discountRate", "Tax deferral discount rate", 0, 12, .25, "%", "", "Used only to show the present value of future taxes. It does not change the investment return path.")}
-                  ${slider("activePretaxDiff", "Direct index pre-tax alpha / drag", -2.5, 2.5, .05, "%", "", "Expected annual pre-tax return difference versus the benchmark from fees, implementation, sampling, or active tilts.")}
+                  ${slider("implementationDrag", "Implementation drag", 0, 1, .01, "%", "", "Additional expected annual drag from implementation, sampling, cash, or trading friction, separate from the explicit fee.")}
+                  ${slider("activeTiltAlpha", "Active tilt alpha / drag", -2.5, 2.5, .05, "%", "", "Expected annual return impact from intentional active tilts. Positive values help pre-tax return; negative values hurt it.")}
                   ${slider("benchmarkRealizedGains", "Benchmark realized gains", 0, 10, .25, "%", "", "Annual taxable realized gains as a percent of portfolio value for the benchmark. Higher values create more taxes for the benchmark to overcome.")}
                   ${slider("annualContribution", "Annual contribution", 0, 500000, 10000, "", "$", "New cash added at the beginning of each year. Contributions increase value and basis.")}
                   ${slider("annualWithdrawal", "Annual withdrawal", 0, 500000, 10000, "", "$", "Cash taken out each year. Withdrawals can realize taxable gains if the portfolio has embedded appreciation.")}
@@ -1422,17 +1505,29 @@
                 ${metric("Expected tax alpha", pct(result.taxAlpha), `${dollars(taxAlphaDollars)} contribution after removing pre-tax gap`, result.taxAlpha >= 0, "Post-tax relative return minus pre-tax relative return. This isolates the modeled contribution from tax management.")}
                 ${metric("PV tax advantage", dollars(result.pvTaxAdvantage), `Discounts taxes at ${params.discountRate.toFixed(2)}%.`, result.pvTaxAdvantage >= 0, "Present value difference in total modeled tax burden. This highlights the economic value of paying taxes later instead of earlier.")}
                 ${metric("Tax alpha range", taxAlphaRangeText, `Combined tracking-error and volatility range.`, undefined, "Range of measured tax alpha across simplified low/high tracking-error and harvesting scenarios.")}
+                ${metric("Break-even tax alpha", pct(breakEvenTaxAlpha), `Modeled tax alpha ${pct(result.taxAlpha)}; cushion after fee/drag ${pct(taxAlphaAfterFee)}.`, result.taxAlpha >= breakEvenTaxAlpha, "Tax alpha needed to overcome explicit fee, implementation drag, and active-tilt drag.")}
               </section>
 
               <section class="card">
                 ${sectionHeader("Scenario summary", "Plain-English explanation for advisor/client conversations.", "This summary updates automatically based on the selected assumptions.")}
-                ${buildStory(result, endingAfterTaxGap, taxAlphaDollars, lossValue, deferralValue)}
+                ${buildStory(params, result, endingAfterTaxGap, taxAlphaDollars, lossValue, deferralValue)}
               </section>
 
               <section class="card">
                 ${sectionHeader("Tax alpha return bridge", "The advisor story in one chart: what happened before tax, what tax management added, and what the client kept after tax.", "The bridge uses annualized return differences. Tax alpha is the gap between post-tax relative return and pre-tax relative return.")}
                 ${returnBridgeChart(result.pretaxActiveReturn, result.taxAlpha, result.afterTaxActiveReturn)}
               </section>
+
+              <div class="two-col">
+                <section class="card">
+                  ${sectionHeader("Fee versus tax alpha", "Shows whether modeled tax alpha clears the explicit fee and implementation hurdle.", "This separates the 10 bps default fee from other pre-tax drag and from tax alpha.")}
+                  ${feeAlphaBridgeChart(params, result)}
+                </section>
+                <section class="card">
+                  ${sectionHeader("Client fit checklist", "Quick read on whether the assumptions are favorable for direct indexing.", "This is a qualitative screen, not a recommendation.")}
+                  ${fitChecklist(params, result)}
+                </section>
+              </div>
 
               <div class="two-col">
                 <section class="card">
@@ -1446,8 +1541,9 @@
               </div>
 
               <section class="card">
-                ${sectionHeader("Benefit decomposition", "A dollar bridge from benchmark after-tax wealth to direct-index after-tax wealth.", "This separates pre-tax implementation difference from modeled tax-management contribution.")}
+                ${sectionHeader("Benefit decomposition", "Expected-case dollar bridge from benchmark after-tax wealth to direct-index after-tax wealth.", "This is the central expected case. Tracking error affects the outcome range, not this single point estimate.")}
                 ${benefitWaterfall(result, endingPretaxGap, taxAlphaDollars)}
+                <div class="soft-box"><strong>Tracking-error note:</strong> this decomposition uses the expected direct-index path. Tracking error changes the pre-tax difference in the low/high scenarios, which is why it appears in the outcome bands rather than in this single expected bridge.</div>
               </section>
 
               <div class="two-col">
@@ -1461,10 +1557,16 @@
                 </section>
               </div>
 
-              <section class="card">
-                ${sectionHeader("Cumulative tax burden over time", "Shows how tax timing differs between the benchmark and direct index.", "This includes annual taxes and, if toggled on, the end-period liquidation tax at each horizon.")}
-                ${taxPaidChart(result.rows)}
-              </section>
+              <div class="two-col">
+                <section class="card">
+                  ${sectionHeader("Cumulative tax burden over time", "Shows how tax timing differs between the benchmark and direct index.", "This includes annual taxes and, if toggled on, the end-period liquidation tax at each horizon.")}
+                  ${taxPaidChart(result.rows)}
+                </section>
+                <section class="card">
+                  ${sectionHeader("Losses used now versus taxes later", "Separates current harvested-loss value from possible future tax recapture.", "Harvesting can create current tax value while reducing basis. The net benefit depends on tax rates, timing, and whether the portfolio is eventually sold.")}
+                  ${lossTimingChart(result)}
+                </section>
+              </div>
 
               <div class="lever-grid">
                 <section class="card">
