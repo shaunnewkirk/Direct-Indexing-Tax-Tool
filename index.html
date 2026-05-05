@@ -214,6 +214,11 @@
 
     .info:hover::after, .info:focus::after { display: block; }
 
+    .info.tip-up::after {
+      top: auto;
+      bottom: 24px;
+    }
+
     .number-box {
       display: flex;
       align-items: center;
@@ -337,8 +342,15 @@
 
     .lever-grid {
       display: grid;
-      grid-template-columns: .9fr 1.1fr;
+      grid-template-columns: 1fr;
       gap: 24px;
+    }
+
+    .lever-content {
+      display: grid;
+      grid-template-columns: minmax(320px, 0.9fr) minmax(320px, 1.1fr);
+      gap: 18px;
+      align-items: center;
     }
 
     svg.chart {
@@ -396,7 +408,8 @@
     .table-wrap {
       border: 1px solid var(--line);
       border-radius: 18px;
-      overflow: auto;
+      overflow-x: auto;
+      overflow-y: visible;
     }
 
     th {
@@ -439,7 +452,7 @@
     @media (max-width: 1180px) {
       .layout, .hero-grid { grid-template-columns: 1fr; }
       .metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-      .two-col, .lever-grid, .talking-points { grid-template-columns: 1fr; }
+      .two-col, .lever-grid, .lever-content, .talking-points { grid-template-columns: 1fr; }
     }
 
     @media (max-width: 640px) {
@@ -515,9 +528,10 @@
         .replaceAll(">", "&gt;");
     }
 
-    function info(text) {
+    function info(text, direction = "down") {
       if (!text) return "";
-      return `<span class="info" tabindex="0" data-tip="${escapeAttr(text)}">i</span>`;
+      const directionClass = direction === "up" ? " tip-up" : "";
+      return `<span class="info${directionClass}" tabindex="0" data-tip="${escapeAttr(text)}">i</span>`;
     }
 
     function label(text, tip) {
@@ -990,12 +1004,14 @@
               <div class="lever-grid">
                 <section class="card">
                   ${sectionHeader("Power of each tax lever", "Incremental ending after-tax dollars from turning on each lever.", "This separates the two main engines: current-year value from harvesting losses and future value from deferring realized gains.")}
-                  ${barBreakdown(lossValue, deferralValue)}
-                  <div class="mini-stack">
-                    <div class="soft-box"><strong>Loss harvesting:</strong> ${dollars(lossValue)} ${info("Incremental ending after-tax wealth from turning loss harvesting on, holding gain deferral on.")}</div>
-                    <div class="soft-box"><strong>Gain deferral:</strong> ${dollars(deferralValue)} ${info("Incremental ending after-tax wealth from turning gain deferral on, holding loss harvesting on.")}</div>
-                    <div class="soft-box"><strong>Expected annual harvest opportunity:</strong> ${pct(result.effectiveHarvestOpportunity, 2)} ${info("Modeled harvested losses as a percent of portfolio value after scaling the base assumption by volatility.")}</div>
-                    <div class="soft-box"><strong>Volatility-driven harvest range:</strong> ${pct(lowResult.effectiveHarvestOpportunity, 2)} to ${pct(highResult.effectiveHarvestOpportunity, 2)} ${info("Low-to-high range around expected harvesting opportunity. This is a simple assumption, not a prediction.")}</div>
+                  <div class="lever-content">
+                    <div>${barBreakdown(lossValue, deferralValue)}</div>
+                    <div class="mini-stack">
+                      <div class="soft-box"><strong>Loss harvesting:</strong> ${dollars(lossValue)} ${info("Incremental ending after-tax wealth from turning loss harvesting on, holding gain deferral on.")}</div>
+                      <div class="soft-box"><strong>Gain deferral:</strong> ${dollars(deferralValue)} ${info("Incremental ending after-tax wealth from turning gain deferral on, holding loss harvesting on.")}</div>
+                      <div class="soft-box"><strong>Expected annual harvest opportunity:</strong> ${pct(result.effectiveHarvestOpportunity, 2)} ${info("Modeled harvested losses as a percent of portfolio value after scaling the base assumption by volatility.")}</div>
+                      <div class="soft-box"><strong>Volatility-driven harvest range:</strong> ${pct(lowResult.effectiveHarvestOpportunity, 2)} to ${pct(highResult.effectiveHarvestOpportunity, 2)} ${info("Low-to-high range around expected harvesting opportunity. This is a simple assumption, not a prediction.")}</div>
+                    </div>
                   </div>
                 </section>
 
@@ -1013,8 +1029,8 @@
                         <tr><td class="bold">Pre-tax CAGR ${info("Annualized return before taxes.")}</td><td class="right">${pct(result.benchmarkPretaxCagr)}</td><td class="right">${pct(result.directPretaxCagr)}</td><td class="right bold">${pct(result.pretaxActiveReturn)}</td></tr>
                         <tr><td class="bold">After-tax CAGR ${info("Annualized return after taxes.")}</td><td class="right">${pct(result.benchmarkAfterTaxCagr)}</td><td class="right">${pct(result.directAfterTaxCagr)}</td><td class="right bold">${pct(result.afterTaxActiveReturn)}</td></tr>
                         <tr><td class="bold">PV of total tax burden ${info("Present value of annual taxes plus end-period liquidation tax, less harvesting tax savings for the direct index.")}</td><td class="right">${dollars(result.pvBenchmarkTotalTaxes)}</td><td class="right">${dollars(result.pvDirectTotalTaxes)}</td><td class="right bold">${dollars(result.pvTaxAdvantage)}</td></tr>
-                        <tr><td class="bold">Annual realized-gain taxes ${info("Nominal annual taxes from realized gains over the full horizon. This excludes end-period liquidation tax.")}</td><td class="right">${dollars(result.totalBenchmarkAnnualTax)}</td><td class="right">${dollars(result.totalDirectAnnualTax)}</td><td class="right bold">${dollars(result.totalBenchmarkAnnualTax - result.totalDirectAnnualTax)}</td></tr>
-                        <tr><td class="bold">End-period liquidation tax ${info("Estimated tax due if the entire portfolio is sold at the end of the period.")}</td><td class="right">${dollars(result.terminalBenchmarkTax)}</td><td class="right">${dollars(result.terminalDirectTax)}</td><td class="right bold">${dollars(result.terminalBenchmarkTax - result.terminalDirectTax)}</td></tr>
+                        <tr><td class="bold">Annual realized-gain taxes ${info("Nominal annual taxes from realized gains over the full horizon. This excludes end-period liquidation tax.", "up")}</td><td class="right">${dollars(result.totalBenchmarkAnnualTax)}</td><td class="right">${dollars(result.totalDirectAnnualTax)}</td><td class="right bold">${dollars(result.totalBenchmarkAnnualTax - result.totalDirectAnnualTax)}</td></tr>
+                        <tr><td class="bold">End-period liquidation tax ${info("Estimated tax due if the entire portfolio is sold at the end of the period.", "up")}</td><td class="right">${dollars(result.terminalBenchmarkTax)}</td><td class="right">${dollars(result.terminalDirectTax)}</td><td class="right bold">${dollars(result.terminalBenchmarkTax - result.terminalDirectTax)}</td></tr>
                       </tbody>
                     </table>
                   </div>
