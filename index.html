@@ -604,6 +604,106 @@
       margin-bottom: 3px;
     }
 
+    .scenario-selector {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 0 0 16px;
+    }
+
+    .scenario-choice {
+      border: 1px solid var(--line);
+      background: white;
+      color: var(--ink);
+      border-radius: 999px;
+      padding: 8px 11px;
+      font-size: 12px;
+      font-weight: 850;
+      cursor: pointer;
+    }
+
+    .scenario-choice.active {
+      background: var(--dark);
+      color: white;
+      border-color: var(--dark);
+    }
+
+    .range-table {
+      display: grid;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .range-row {
+      display: grid;
+      grid-template-columns: 1fr auto auto auto;
+      gap: 12px;
+      align-items: center;
+      border-radius: 14px;
+      background: var(--soft);
+      padding: 10px 12px;
+      font-size: 13px;
+    }
+
+    .range-row strong {
+      color: var(--ink);
+    }
+
+    .range-row span {
+      color: #475569;
+      white-space: nowrap;
+    }
+
+    .scenario-selector {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 0 0 16px;
+    }
+
+    .scenario-choice {
+      border: 1px solid var(--line);
+      background: white;
+      color: var(--ink);
+      border-radius: 999px;
+      padding: 8px 11px;
+      font-size: 12px;
+      font-weight: 850;
+      cursor: pointer;
+    }
+
+    .scenario-choice.active {
+      background: var(--dark);
+      color: white;
+      border-color: var(--dark);
+    }
+
+    .range-table {
+      display: grid;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .range-row {
+      display: grid;
+      grid-template-columns: 1fr auto auto auto;
+      gap: 12px;
+      align-items: center;
+      border-radius: 14px;
+      background: var(--soft);
+      padding: 10px 12px;
+      font-size: 13px;
+    }
+
+    .range-row strong {
+      color: var(--ink);
+    }
+
+    .range-row span {
+      color: #475569;
+      white-space: nowrap;
+    }
+
     .disclaimer {
       border: 1px solid var(--amber-line);
       border-radius: 18px;
@@ -700,7 +800,9 @@
       {
         id: "lowVol",
         name: "Low-vol market",
-        desc: "Lower harvesting opportunity and tighter bands.",
+       let viewMode = "simple";
+    let bridgeScenario = "expected";
+    let shareMessage = "";nds.",
         values: { volatility: 8, trackingError: 1, harvestOpportunity: 2.5, harvestCalibration: "conservative" }
       },
       {
@@ -725,6 +827,7 @@
 
     let params = { ...DEFAULTS };
     let viewMode = "simple";
+    let bridgeScenario = "expected";
     let shareMessage = "";
 
     const money = new Intl.NumberFormat("en-US", {
@@ -1171,8 +1274,44 @@
       const s = chartScales(rows, ["benchmarkCumulativeTaxWithLiquidation", "directCumulativeTaxWithLiquidation"], width, height, pad, true);
       return `
         <svg class="chart" viewBox="0 0 ${width} ${height}">
-          ${gridLines(s.min, s.max, width, height, pad)}
-          ${[0, Math.round(s.years / 2), s.years].map(year => `<text x="${s.xScale(year) - 10}" y="${height - 14}" font-size="13" fill="#64748b">Y${year}</text>`).join("")}
+          ${gfunction scenarioLabel(key) {
+      if (key === "downside") return "Downside tracking case";
+      if (key === "upside") return "Upside tracking case";
+      if (key === "lowTax") return "Low harvesting case";
+      if (key === "highTax") return "High harvesting case";
+      return "Expected case";
+    }
+
+    function scenarioPicker() {
+      const choices = [
+        ["expected", "Expected"],
+        ["downside", "Downside tracking"],
+        ["upside", "Upside tracking"],
+        ["lowTax", "Low harvesting"],
+        ["highTax", "High harvesting"]
+      ];
+      return `<div class="scenario-selector">${choices.map(([key, text]) => `<button class="scenario-choice ${bridgeScenario === key ? "active" : ""}" data-bridge-scenario="${key}">${text}</button>`).join("")}</div>`;
+    }
+
+    function returnBridgeRangeTable(expected, downside, upside, lowTax, highTax) {
+      const rows = [
+        ["Expected", expected],
+        ["Downside tracking", downside],
+        ["Upside tracking", upside],
+        ["Low harvesting", lowTax],
+        ["High harvesting", highTax]
+      ];
+      return `<div class="range-table">${rows.map(([labelText, r]) => `
+        <div class="range-row">
+          <strong>${labelText}</strong>
+          <span>Pre-tax ${pct(r.pretaxActiveReturn)}</span>
+          <span>Tax alpha ${pct(r.taxAlpha)}</span>
+          <span>Post-tax ${pct(r.afterTaxActiveReturn)}</span>
+        </div>
+      `).join("")}</div>`;
+    }
+
+    function returnBridgeChart(preTaxDiff, taxAlpha, postTaxDiff) {h.round(s.years / 2), s.years].map(year => `<text x="${s.xScale(year) - 10}" y="${height - 14}" font-size="13" fill="#64748b">Y${year}</text>`).join("")}
           <polyline points="${pointsFor(rows, "benchmarkCumulativeTaxWithLiquidation", s.xScale, s.yScale)}" fill="none" stroke="#64748b" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"></polyline>
           <polyline points="${pointsFor(rows, "directCumulativeTaxWithLiquidation", s.xScale, s.yScale)}" fill="none" stroke="#0f172a" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"></polyline>
         </svg>
@@ -1181,6 +1320,43 @@
           <span class="legend-item"><span class="dot" style="background:#0f172a"></span> Direct index cumulative tax burden</span>
         </div>
       `;
+    }
+
+    function scenarioLabel(key) {
+      if (key === "downside") return "Downside tracking case";
+      if (key === "upside") return "Upside tracking case";
+      if (key === "lowTax") return "Low harvesting case";
+      if (key === "highTax") return "High harvesting case";
+      return "Expected case";
+    }
+
+    function scenarioPicker() {
+      const choices = [
+        ["expected", "Expected"],
+        ["downside", "Downside tracking"],
+        ["upside", "Upside tracking"],
+        ["lowTax", "Low harvesting"],
+        ["highTax", "High harvesting"]
+      ];
+      return `<div class="scenario-selector">${choices.map(([key, text]) => `<button class="scenario-choice ${bridgeScenario === key ? "active" : ""}" data-bridge-scenario="${key}">${text}</button>`).join("")}</div>`;
+    }
+
+    function returnBridgeRangeTable(expected, downside, upside, lowTax, highTax) {
+      const rows = [
+        ["Expected", expected],
+        ["Downside tracking", downside],
+        ["Upside tracking", upside],
+        ["Low harvesting", lowTax],
+        ["High harvesting", highTax]
+      ];
+      return `<div class="range-table">${rows.map(([labelText, r]) => `
+        <div class="range-row">
+          <strong>${labelText}</strong>
+          <span>Pre-tax ${pct(r.pretaxActiveReturn)}</span>
+          <span>Tax alpha ${pct(r.taxAlpha)}</span>
+          <span>Post-tax ${pct(r.afterTaxActiveReturn)}</span>
+        </div>
+      `).join("")}</div>`;
     }
 
     function returnBridgeChart(preTaxDiff, taxAlpha, postTaxDiff) {
@@ -1315,10 +1491,11 @@
       const mainEngine = Math.abs(lossValue) >= Math.abs(deferralValue) ? "loss harvesting" : "gain deferral";
       const feeHurdle = Math.max(0, ((p.directIndexFee || 0) + (p.implementationDrag || 0) - (p.activeTiltAlpha || 0)) / 100);
       return `
-        <div class="story-box">
-          <strong>Client story:</strong> In this scenario, the direct index is ${direction} the benchmark by <strong>${pct(Math.abs(result.pretaxActiveReturn))}</strong> per year before tax.
-          The explicit fee/drag hurdle is <strong>${pct(feeHurdle)}</strong>, while modeled tax alpha is <strong>${pct(result.taxAlpha)}</strong>.
-          Tax management adds about <strong>${dollars(taxAlphaDollars)}</strong> of modeled value after removing the expected pre-tax return difference.
+        <div clasfunction encodeScenario() {
+      const payload = { params, viewMode, bridgeScenario };o, the direct index is ${direction} the benchmark by <strong>${pct(Math.abs(result.pretaxActiveReturn))}</strong> per year before tax.
+          The explicit fee/drag hurdle is <strong>${pct(feeHurdle)}</strong>, while modeled tax alpha is <strong>${pct(result.taxAlpha)}</stroparams = { ...DEFAULTS, ...(parsed.params || {}) };
+        viewMode = parsed.viewMode || "simple";
+        bridgeScenario = parsed.bridgeScenario || "expected";lue after removing the expected pre-tax return difference.
           The client ends up ${afterDirection} the benchmark by <strong>${pct(Math.abs(result.afterTaxActiveReturn))}</strong> per year after tax, equal to about <strong>${dollars(endingAfterTaxGap)}</strong> over the horizon.
           In this case, the larger tax lever is <strong>${mainEngine}</strong>.
         </div>
@@ -1329,11 +1506,21 @@
       const diffWith = withLiquidation.directAfterTaxEnd - withLiquidation.benchmarkAfterTaxEnd;
       const diffWithout = withoutLiquidation.directAfterTaxEnd - withoutLiquidation.benchmarkAfterTaxEnd;
       return `
-        <div class="comparison-grid">
-          <div class="comparison-card">
-            <h3>Sold at horizon ${info("Assumes the full portfolio is liquidated at the end of the period and embedded gains are taxed.")}</h3>
-            <div class="comparison-stat"><span>After-tax advantage</span><strong>${dollars(diffWith)}</strong></div>
-            <div class="comparison-stat"><span>Tax alpha</span><strong>${pct(withLiquidation.taxAlpha)}</strong></div>
+        <div const downsideTracking = simulate(params, { trackingBandSign: -1 });
+      const upsideTracking = simulate(params, { trackingBandSign: 1 });
+      const lowHarvesting = simulate(params, { harvestOpportunityMultiplier: multipliers.low });
+      const highHarvesting = simulate(params, { harvestOpportunityMultiplier: multipliers.high });
+      const scenarios = [
+        simulate(params, { trackingBandSign: -1, harvestOpportunityMultiplier: multipliers.low }),
+        simulate(params, { trackingBandSign: -1, harvestOpportunityMultiplier: multipliers.high }),
+        simulate(params, { trackingBandSign: 1, harvestOpportunityMultiplier: multipliers.low }),
+        simulate(params, { trackingBandSign: 1, harvestOpportunityMultiplier: multipliers.high })
+      ];
+      const bridgeResult = bridgeScenario === "downside" ? downsideTracking
+        : bridgeScenario === "upside" ? upsideTracking
+        : bridgeScenario === "lowTax" ? lowHarvesting
+        : bridgeScenario === "highTax" ? highHarvesting
+        : result;lpha)}</strong></div>
             <div class="comparison-stat"><span>Direct ending value</span><strong>${dollars(withLiquidation.directAfterTaxEnd)}</strong></div>
           </div>
           <div class="comparison-card">
@@ -1347,16 +1534,18 @@
     }
 
     function encodeScenario() {
-      const payload = { params, viewMode };
+      const payload = { params, viewMode, bridgeScenario };
       return btoa(encodeURIComponent(JSON.stringify(payload)));
     }
 
-    function loadScenarioFromHash() {
-      if (!location.hash || location.hash.length < 2) return;
-      try {
-        const parsed = JSON.parse(decodeURIComponent(atob(location.hash.slice(1))));
-        params = { ...DEFAULTS, ...(parsed.params || {}) };
+    function loadScenarioFconst endingPretaxGap = result.directPretax - result.benchmarkPretax;
+      const endingAfterTaxGap = result.directAfterTaxEnd - result.benchmarkAfterTaxEnd;
+      const taxAlphaDollars = endingAfterTaxGap - endingPretaxGap;
+      const bridgeEndingPretaxGap = bridgeResult.directPretax - bridgeResult.benchmarkPretax;
+      const bridgeEndingAfterTaxGap = bridgeResult.directAfterTaxEnd - bridgeResult.benchmarkAfterTaxEnd;
+      const bridgeTaxAlphaDollars = bridgeEndingAfterTaxGap - bridgeEndingPretaxGap;{}) };
         viewMode = parsed.viewMode || "simple";
+        bridgeScenario = parsed.bridgeScenario || "expected";
       } catch (e) {
         // Ignore invalid hashes.
       }
@@ -1379,12 +1568,21 @@
     function render() {
       const result = simulate(params);
       const multipliers = taxAlphaBandMultipliers(params.volatility);
+      const downsideTracking = simulate(params, { trackingBandSign: -1 });
+      const upsideTracking = simulate(params, { trackingBandSign: 1 });
+      const lowHarvesting = simulate(params, { harvestOpportunityMultiplier: multipliers.low });
+      const highHarvesting = simulate(params, { harvestOpportunityMultiplier: multipliers.high });
       const scenarios = [
         simulate(params, { trackingBandSign: -1, harvestOpportunityMultiplier: multipliers.low }),
         simulate(params, { trackingBandSign: -1, harvestOpportunityMultiplier: multipliers.high }),
         simulate(params, { trackingBandSign: 1, harvestOpportunityMultiplier: multipliers.low }),
         simulate(params, { trackingBandSign: 1, harvestOpportunityMultiplier: multipliers.high })
       ];
+      const bridgeResult = bridgeScenario === "downside" ? downsideTracking
+        : bridgeScenario === "upside" ? upsideTracking
+        : bridgeScenario === "lowTax" ? lowHarvesting
+        : bridgeScenario === "highTax" ? highHarvesting
+        : result;
       const lowResult = scenarios.reduce((best, item) => item.directAfterTaxEnd < best.directAfterTaxEnd ? item : best, scenarios[0]);
       const highResult = scenarios.reduce((best, item) => item.directAfterTaxEnd > best.directAfterTaxEnd ? item : best, scenarios[0]);
       const lowTaxAlpha = Math.min(...scenarios.map(x => x.taxAlpha));
@@ -1402,6 +1600,9 @@
       const endingPretaxGap = result.directPretax - result.benchmarkPretax;
       const endingAfterTaxGap = result.directAfterTaxEnd - result.benchmarkAfterTaxEnd;
       const taxAlphaDollars = endingAfterTaxGap - endingPretaxGap;
+      const bridgeEndingPretaxGap = bridgeResult.directPretax - bridgeResult.benchmarkPretax;
+      const bridgeEndingAfterTaxGap = bridgeResult.directAfterTaxEnd - bridgeResult.benchmarkAfterTaxEnd;
+      const bridgeTaxAlphaDollars = bridgeEndingAfterTaxGap - bridgeEndingPretaxGap;
       const terminalPretaxBandText = `${dollars(result.directPretaxLow)} to ${dollars(result.directPretaxHigh)}`;
       const taxAlphaRangeText = `${pct(lowTaxAlpha)} to ${pct(highTaxAlpha)}`;
       const breakEvenTaxAlpha = Math.max(0, ((params.directIndexFee || 0) + (params.implementationDrag || 0) - (params.activeTiltAlpha || 0)) / 100);
@@ -1488,9 +1689,10 @@
                     { value: "optimistic", label: "Optimistic" }
                   ], "Simple calibration factor for the volatility-to-harvesting assumption. Use conservative when you want a less aggressive tax-alpha estimate.")}
                   ${slider("lossUtilization", "Loss utilization", 0, 100, 5, "%", "", "Percent of harvested losses assumed useful to the client through gains, income offsets, or carryforwards.")}
-                  ${slider("shortTermLossShare", "Losses used at short-term rate", 0, 100, 5, "%", "", "Share of useful losses valued at the short-term or ordinary income tax rate. Higher short-term use usually means larger current tax benefit.")}
-                  ${toggle("includeGainDeferral", "Include gain deferral", "Turns on tax-aware trading that avoids some annual realized gains relative to the benchmark.")}
-                  ${slider("gainDeferral", "Gain deferral rate", 0, 100, 5, "%", "", "Percent of benchmark-like annual realized gains avoided by the direct index. Deferred gains may still be taxed later.")}
+                  ${slider("shortTermLossShare", "Losses used at short-term rate", 0, 1${sectionHeader("Tax alpha return bridge", `Shown for: ${scenarioLabel(bridgeScenario)}. Use the buttons below to show how tracking error changes the bridge.`, "The bridge uses annualized return differences. Tax alpha is the gap between post-tax relative return and pre-tax relative return.")}
+                ${scenarioPicker()}
+                ${returnBridgeChart(bridgeResult.pretaxActiveReturn, bridgeResult.taxAlpha, bridgeResult.afterTaxActiveReturn)}
+                ${returnBridgeRangeTable(result, downsideTracking, upsideTracking, lowHarvesting, highHarvesting)}%", "", "Percent of benchmark-like annual realized gains avoided by the direct index. Deferred gains may still be taxed later.")}
                   ${toggle("gainBudgetEnabled", "Use realized-gain budget", "Caps annual realized gains in the direct index. This is useful for transition-aware cases with legacy holdings.")}
                   ${slider("gainBudgetPct", "Annual gain budget", 0, 5, .25, "%", "", "Maximum direct-index realized gains as a percent of portfolio value when the gain-budget toggle is on.")}
                   ${toggle("reinvestTaxSavings", "Reinvest tax savings", "When on, harvested-loss tax savings are added back to the portfolio and compound. When off, they are counted as outside cash.")}
@@ -1502,9 +1704,9 @@
               <section class="metrics">
                 ${metric("Pre-tax DI vs benchmark", pct(result.pretaxActiveReturn), `${dollars(endingPretaxGap)} expected ending pre-tax gap`, result.pretaxActiveReturn >= 0, "Annualized pre-tax return difference between the direct index and benchmark. This strips out taxes.")}
                 ${metric("Post-tax DI vs benchmark", pct(result.afterTaxActiveReturn), `${dollars(endingAfterTaxGap)} expected ending after-tax gap`, result.afterTaxActiveReturn >= 0, "Annualized after-tax return difference between the direct index and benchmark after annual taxes and optional liquidation tax.")}
-                ${metric("Expected tax alpha", pct(result.taxAlpha), `${dollars(taxAlphaDollars)} contribution after removing pre-tax gap`, result.taxAlpha >= 0, "Post-tax relative return minus pre-tax relative return. This isolates the modeled contribution from tax management.")}
-                ${metric("PV tax advantage", dollars(result.pvTaxAdvantage), `Discounts taxes at ${params.discountRate.toFixed(2)}%.`, result.pvTaxAdvantage >= 0, "Present value difference in total modeled tax burden. This highlights the economic value of paying taxes later instead of earlier.")}
-                ${metric("Tax alpha range", taxAlphaRangeText, `Combined tracking-error and volatility range.`, undefined, "Range of measured tax alpha across simplified low/high tracking-error and harvesting scenarios.")}
+                ${metric("Expected tax alpha", pct(result.taxAlpha), `${dollars(taxAlphaDollars)} contribution after removing pre-tax gap`, result.taxAlpha ${sectionHeader("Benefit decomposition", `Dollar bridge for: ${scenarioLabel(bridgeScenario)}.`, "Use the scenario buttons in the Tax Alpha Return Bridge to choose whether this chart shows expected, downside tracking, upside tracking, low harvesting, or high harvesting.")}
+                ${benefitWaterfall(bridgeResult, bridgeEndingPretaxGap, bridgeTaxAlphaDollars)}
+                <div class="soft-box"><strong>Tracking-error note:</strong> tracking error does not change the expected case, but it does change the downside/upside tracking cases. Select those bridge scenarios above to see this decomposition move with the tracking-error dial.</div>ting scenarios.")}
                 ${metric("Break-even tax alpha", pct(breakEvenTaxAlpha), `Modeled tax alpha ${pct(result.taxAlpha)}; cushion after fee/drag ${pct(taxAlphaAfterFee)}.`, result.taxAlpha >= breakEvenTaxAlpha, "Tax alpha needed to overcome explicit fee, implementation drag, and active-tilt drag.")}
               </section>
 
@@ -1514,8 +1716,9 @@
               </section>
 
               <section class="card">
-                ${sectionHeader("Tax alpha return bridge", "The advisor story in one chart: what happened before tax, what tax management added, and what the client kept after tax.", "The bridge uses annualized return differences. Tax alpha is the gap between post-tax relative return and pre-tax relative return.")}
-                ${returnBridgeChart(result.pretaxActiveReturn, result.taxAlpha, result.afterTaxActiveReturn)}
+                ${sectionHeader("Tax alpha return bridge", `Shown for: ${scenarioLabel(bridgeScenario)}. Use the buttons below to show how tracking error changes the bridge.`, "The bridge uses annualized return differences. Tax alpha is the gap between post-tax relative return and pre-tax relative return.")}
+                ${scenarioPicker()}
+                ${returnBridgeChart(bridgeResult.pretaxActiveReturn, bridgeResult.taxAlpha, bridgeResult.afterTaxActiveReturn)}
               </section>
 
               <div class="two-col">
@@ -1541,14 +1744,7 @@
               </div>
 
               <section class="card">
-                ${sectionHeader("Benefit decomposition", "Expected-case dollar bridge from benchmark after-tax wealth to direct-index after-tax wealth.", "This is the central expected case. Tracking error affects the outcome range, not this single point estimate.")}
-                ${benefitWaterfall(result, endingPretaxGap, taxAlphaDollars)}
-                <div class="soft-box"><strong>Tracking-error note:</strong> this decomposition uses the expected direct-index path. Tracking error changes the pre-tax difference in the low/high scenarios, which is why it appears in the outcome bands rather than in this single expected bridge.</div>
-              </section>
-
-              <div class="two-col">
-                <section class="card">
-                  ${sectionHeader("Pre-tax tracking error band", "Tracking error widens the range around expected direct indexing pre-tax wealth.", "The shaded band is a one-standard-deviation relative return range around the expected direct index path.")}
+                ${sectionHeader("Benefit decomposition", "Expected-case dollar bridge from benchmark after-tax wealth to direct-ind     ${sectionHeader("Pre-tax tracking error band", "Tracking error widens the range around expected direct indexing pre-tax wealth.", "The shaded band is a one-standard-deviation relative return range around the expected direct index path.")}
                   ${trackingBandChart(result.rows)}
                 </section>
                 <section class="card">
@@ -1608,7 +1804,19 @@
                 ${sectionHeader("Plain-English advisor talking points", "Designed to keep the explanation honest and simple.", "These are phrased for advisor/client conversations, not as investment recommendations.")}
                 <div class="talking-points">
                   <div class="soft-box"><strong>Tracking error flows through to after-tax wealth.</strong><br>It widens the pre-tax range and the after-tax outcome range. It is not tax alpha by itself, but it changes the taxable path the client experiences.</div>
-                  <div class="soft-box"><strong>Volatility powers the harvesting range.</strong><br>At ${params.volatility.toFixed(1)}% volatility, expected harvest opportunity is ${pct(result.effectiveHarvestOpportunity, 2)}, with a range of ${pct(lowResult.effectiveHarvestOpportunity, 2)} to ${pct(highResult.effectiveHarvestOpportunity, 2)}.</div>
+                  <ddocument.querySelectorAll("button[data-mode]").forEach(button => {
+        button.addEventListener("click", e => {
+          viewMode = e.currentTarget.dataset.mode;
+          render();
+        });
+      });
+
+      document.querySelectorAll("button[data-bridge-scenario]").forEach(button => {
+        button.addEventListener("click", e => {
+          bridgeScenario = e.currentTarget.dataset.bridgeScenario;
+          render();
+        });
+      });with a range of ${pct(lowResult.effectiveHarvestOpportunity, 2)} to ${pct(highResult.effectiveHarvestOpportunity, 2)}.</div>
                   <div class="soft-box"><strong>Gain deferral is quiet but powerful.</strong><br>Avoided annual realized-gain taxes stay invested. Even when taxes are eventually paid, a future tax bill is worth less than the same tax paid today.</div>
                 </div>
               </section>
@@ -1678,14 +1886,7 @@
       const reset = document.getElementById("resetBtn");
       if (reset) {
         reset.addEventListener("click", () => {
-          params = { ...DEFAULTS };
-          shareMessage = "";
-          render();
-        });
-      }
-
-      const copyBtn = document.getElementById("copyLinkBtn");
-      if (copyBtn) copyBtn.addEventListener("click", copyScenarioLink);
+          k", copyScenarioLink);
 
       const printBtn = document.getElementById("printBtn");
       if (printBtn) printBtn.addEventListener("click", () => window.print());
