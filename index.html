@@ -22,6 +22,8 @@
       --amber-bg: #fffbeb;
       --amber-line: #fde68a;
       --amber-ink: #78350f;
+      --blue-bg: #eff6ff;
+      --blue-line: #bfdbfe;
     }
 
     * { box-sizing: border-box; }
@@ -33,10 +35,10 @@
       font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
     }
 
-    button, input { font: inherit; }
+    button, input, select { font: inherit; }
 
     .page {
-      max-width: 1440px;
+      max-width: 1480px;
       margin: 0 auto;
       padding: 24px;
     }
@@ -78,13 +80,13 @@
 
     .hero p {
       margin: 16px 0 0;
-      max-width: 820px;
+      max-width: 840px;
       color: #cbd5e1;
       line-height: 1.6;
     }
 
     .scenario {
-      min-width: 260px;
+      min-width: 290px;
       border-radius: 22px;
       background: rgba(255,255,255,0.10);
       padding: 18px;
@@ -94,6 +96,39 @@
     }
 
     .scenario strong { color: white; display: block; }
+
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 18px;
+    }
+
+    .action-btn,
+    .mode-btn,
+    .preset-btn {
+      border: 1px solid rgba(255,255,255,0.18);
+      background: rgba(255,255,255,0.10);
+      color: white;
+      border-radius: 999px;
+      padding: 9px 13px;
+      font-size: 12px;
+      font-weight: 850;
+      cursor: pointer;
+    }
+
+    .mode-btn.active,
+    .action-btn.light {
+      background: white;
+      color: var(--dark);
+      border-color: white;
+    }
+
+    .share-status {
+      color: #cbd5e1;
+      font-size: 12px;
+      align-self: center;
+    }
 
     .layout {
       display: grid;
@@ -148,6 +183,37 @@
       box-shadow: 0 3px 8px rgba(15, 23, 42, 0.05);
     }
 
+    .preset-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .preset-tile {
+      border: 1px solid var(--line);
+      background: white;
+      border-radius: 18px;
+      padding: 12px;
+      cursor: pointer;
+      text-align: left;
+      box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
+    }
+
+    .preset-tile strong {
+      display: block;
+      color: var(--ink);
+      font-size: 13px;
+      line-height: 1.25;
+    }
+
+    .preset-tile span {
+      display: block;
+      margin-top: 5px;
+      color: var(--muted);
+      font-size: 11px;
+      line-height: 1.35;
+    }
+
     .controls { display: grid; gap: 14px; }
 
     .control {
@@ -199,8 +265,8 @@
       top: 24px;
       left: 50%;
       transform: translateX(-50%);
-      z-index: 50;
-      width: 280px;
+      z-index: 100;
+      width: 290px;
       padding: 12px;
       border-radius: 16px;
       background: #020617;
@@ -213,13 +279,10 @@
     }
 
     .info:hover::after, .info:focus::after { display: block; }
+    .info.tip-up::after { top: auto; bottom: 24px; }
 
-    .info.tip-up::after {
-      top: auto;
-      bottom: 24px;
-    }
-
-    .number-box {
+    .number-box,
+    .select-box {
       display: flex;
       align-items: center;
       justify-content: flex-end;
@@ -237,6 +300,15 @@
       outline: 0;
       background: transparent;
       text-align: right;
+      font-weight: 800;
+      color: var(--ink);
+    }
+
+    .select-box select {
+      width: 150px;
+      border: 0;
+      outline: 0;
+      background: transparent;
       font-weight: 800;
       color: var(--ink);
     }
@@ -334,11 +406,14 @@
       line-height: 1.45;
     }
 
-    .two-col {
+    .two-col,
+    .three-col {
       display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
       gap: 24px;
     }
+
+    .two-col { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .three-col { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 
     .lever-grid {
       display: grid;
@@ -395,21 +470,29 @@
 
     .soft-box strong { color: var(--ink); }
 
-    .mini-stack { display: grid; gap: 12px; margin-top: 14px; }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      overflow: hidden;
-      border-radius: 18px;
-      font-size: 14px;
+    .story-box {
+      background: var(--blue-bg);
+      border: 1px solid var(--blue-line);
+      border-radius: 22px;
+      padding: 18px;
+      line-height: 1.65;
+      color: #1e3a8a;
     }
+
+    .story-box strong { color: #0f172a; }
+
+    .mini-stack { display: grid; gap: 12px; margin-top: 14px; }
 
     .table-wrap {
       border: 1px solid var(--line);
       border-radius: 18px;
-      overflow-x: auto;
-      overflow-y: visible;
+      overflow: visible;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
     }
 
     th {
@@ -438,8 +521,13 @@
       gap: 14px;
     }
 
+    .disclosure-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+    }
+
     .disclaimer {
-      margin-top: 14px;
       border: 1px solid var(--amber-line);
       border-radius: 18px;
       background: var(--amber-bg);
@@ -449,20 +537,33 @@
       line-height: 1.55;
     }
 
+    .hidden { display: none !important; }
+
     @media (max-width: 1180px) {
       .layout, .hero-grid { grid-template-columns: 1fr; }
       .metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-      .two-col, .lever-grid, .lever-content, .talking-points { grid-template-columns: 1fr; }
+      .two-col, .three-col, .lever-grid, .lever-content, .talking-points, .disclosure-grid { grid-template-columns: 1fr; }
     }
 
     @media (max-width: 640px) {
       .page { padding: 12px; }
       .hero, .card { border-radius: 20px; padding: 18px; }
-      .metrics { grid-template-columns: 1fr; }
+      .metrics, .preset-grid { grid-template-columns: 1fr; }
       .control-top { flex-direction: column; }
-      .number-box { width: 100%; justify-content: flex-end; }
+      .number-box, .select-box { width: 100%; justify-content: flex-end; }
       svg.chart { height: 260px; }
       .info::after { width: 230px; left: auto; right: -20px; transform: none; }
+      td, th { font-size: 12px; padding: 10px; }
+    }
+
+    @media print {
+      body { background: white; }
+      .page { max-width: none; padding: 0; }
+      .hero-actions, aside, .no-print, .preset-card { display: none !important; }
+      .layout { display: block; }
+      .card, .metric, .hero { box-shadow: none; break-inside: avoid; }
+      .hero { border-radius: 0; }
+      svg.chart { height: 260px; }
     }
   </style>
 </head>
@@ -481,17 +582,71 @@
       benchmarkRealizedGains: 2.5,
       includeLossHarvesting: true,
       harvestOpportunity: 3.5,
+      harvestCalibration: "balanced",
       lossUtilization: 90,
       shortTermLossShare: 65,
       includeGainDeferral: true,
       gainDeferral: 75,
+      gainBudgetEnabled: false,
+      gainBudgetPct: 1.0,
       ltTaxRate: 23.8,
       stTaxRate: 40.8,
+      annualContribution: 0,
+      annualWithdrawal: 0,
+      startingEmbeddedGainPct: 0,
       reinvestTaxSavings: true,
       terminalLiquidation: true
     };
 
+    const PRESETS = [
+      {
+        id: "balanced",
+        name: "Balanced default",
+        desc: "Base case for a taxable equity allocation.",
+        reset: true,
+        values: {}
+      },
+      {
+        id: "highTax",
+        name: "High-tax client",
+        desc: "Higher tax rates and better loss utilization.",
+        values: { ltTaxRate: 33, stTaxRate: 50, lossUtilization: 100, shortTermLossShare: 80, discountRate: 5 }
+      },
+      {
+        id: "volatile",
+        name: "Volatile market",
+        desc: "Wider outcomes and more harvesting opportunity.",
+        values: { volatility: 25, trackingError: 2.5, harvestOpportunity: 4.5, harvestCalibration: "balanced" }
+      },
+      {
+        id: "lowVol",
+        name: "Low-vol market",
+        desc: "Lower harvesting opportunity and tighter bands.",
+        values: { volatility: 8, trackingError: 1, harvestOpportunity: 2.5, harvestCalibration: "conservative" }
+      },
+      {
+        id: "noLiquidation",
+        name: "Continued deferral",
+        desc: "No assumed sale at the horizon.",
+        values: { terminalLiquidation: false, years: 15 }
+      },
+      {
+        id: "embeddedGain",
+        name: "Large embedded gain",
+        desc: "Transition-aware case with legacy appreciation.",
+        values: { startingEmbeddedGainPct: 35, gainBudgetEnabled: true, gainBudgetPct: 0.75, benchmarkRealizedGains: 1.5 }
+      },
+      {
+        id: "taxBudget",
+        name: "Tax-budgeted transition",
+        desc: "Limits annual realized gains in the direct index.",
+        values: { gainBudgetEnabled: true, gainBudgetPct: 0.5, gainDeferral: 85, benchmarkRealizedGains: 3 }
+      }
+    ];
+
     let params = { ...DEFAULTS };
+    let viewMode = "simple";
+    let shareMessage = "";
 
     const money = new Intl.NumberFormat("en-US", {
       style: "currency",
@@ -538,6 +693,12 @@
       return `<span class="label"><span>${text}</span>${info(tip)}</span>`;
     }
 
+    function harvestCalibrationMultiplier(value) {
+      if (value === "conservative") return 0.7;
+      if (value === "optimistic") return 1.25;
+      return 1;
+    }
+
     function taxAlphaBandMultipliers(volatility) {
       const spread = Math.min(0.75, Math.max(0.15, 0.12 + volatility / 100));
       return { spread, low: Math.max(0, 1 - spread), high: 1 + spread };
@@ -548,7 +709,27 @@
       const baseHarvest = Math.max(0, p.harvestOpportunity) / 100;
       const normalizedVolatility = Math.max(0.01, p.volatility / 15);
       const volatilityMultiplier = Math.pow(normalizedVolatility, 1.15);
-      return Math.min(0.25, baseHarvest * volatilityMultiplier * harvestOpportunityMultiplier);
+      const calibration = harvestCalibrationMultiplier(p.harvestCalibration);
+      return Math.min(0.25, baseHarvest * volatilityMultiplier * calibration * harvestOpportunityMultiplier);
+    }
+
+    function applyContribution(value, basis, contribution) {
+      const amount = Math.max(0, contribution);
+      return { value: value + amount, basis: basis + amount };
+    }
+
+    function applyWithdrawal(value, basis, withdrawal, ltTaxRate) {
+      const amount = Math.min(Math.max(0, withdrawal), Math.max(0, value));
+      if (amount <= 0 || value <= 0) return { value, basis, tax: 0 };
+      const gainRatio = Math.max(0, value - basis) / value;
+      const basisRatio = Math.min(1, Math.max(0, basis / value));
+      const realizedGain = amount * gainRatio;
+      const tax = realizedGain * ltTaxRate;
+      return {
+        value: Math.max(0, value - amount - tax),
+        basis: Math.max(0, basis - amount * basisRatio),
+        tax
+      };
     }
 
     function simulate(p, overrides = {}) {
@@ -556,6 +737,7 @@
       const includeGainDeferral = overrides.includeGainDeferral ?? p.includeGainDeferral;
       const harvestOpportunityMultiplier = overrides.harvestOpportunityMultiplier ?? 1;
       const trackingBandSign = overrides.trackingBandSign ?? 0;
+      const terminalLiquidation = overrides.terminalLiquidation ?? p.terminalLiquidation;
 
       const initial = Math.max(1, p.initialInvestment);
       const years = Math.max(1, Math.round(p.years));
@@ -571,13 +753,17 @@
       const lossUtilization = p.lossUtilization / 100;
       const shortTermShare = p.shortTermLossShare / 100;
       const harvestBenefitRate = shortTermShare * stTaxRate + (1 - shortTermShare) * ltTaxRate;
+      const annualContribution = Math.max(0, p.annualContribution || 0);
+      const annualWithdrawal = Math.max(0, p.annualWithdrawal || 0);
+      const startingEmbeddedGainPct = Math.max(-50, Math.min(90, p.startingEmbeddedGainPct || 0)) / 100;
+      const initialBasis = Math.max(0, initial * (1 - startingEmbeddedGainPct));
 
       let benchmarkPretax = initial;
       let directPretax = initial;
       let benchmarkValue = initial;
-      let benchmarkBasis = initial;
+      let benchmarkBasis = initialBasis;
       let directValue = initial;
-      let directBasis = initial;
+      let directBasis = initialBasis;
       let outsideTaxSavings = 0;
       let totalBenchmarkAnnualTax = 0;
       let totalDirectAnnualTax = 0;
@@ -586,6 +772,8 @@
       let pvHarvestTaxSavings = 0;
       let totalHarvestedLosses = 0;
       let totalHarvestTaxSavings = 0;
+      let cumulativeBenchmarkTax = 0;
+      let cumulativeDirectNetTax = 0;
 
       const rows = [{
         year: 0,
@@ -594,10 +782,25 @@
         directPretaxLow: initial,
         directPretaxHigh: initial,
         benchmarkAfterTax: initial,
-        directAfterTax: initial
+        directAfterTax: initial,
+        benchmarkCumulativeTax: 0,
+        directCumulativeTax: 0,
+        benchmarkCumulativeTaxWithLiquidation: 0,
+        directCumulativeTaxWithLiquidation: 0
       }];
 
       for (let year = 1; year <= years; year++) {
+        let bContrib = applyContribution(benchmarkValue, benchmarkBasis, annualContribution);
+        benchmarkValue = bContrib.value;
+        benchmarkBasis = bContrib.basis;
+
+        let dContrib = applyContribution(directValue, directBasis, annualContribution);
+        directValue = dContrib.value;
+        directBasis = dContrib.basis;
+
+        benchmarkPretax += annualContribution;
+        directPretax += annualContribution;
+
         const activeTrackingShock = trackingBandSign * trackingError * (Math.sqrt(year) - Math.sqrt(year - 1));
         const directIndexReturn = (1 + baseDirectIndexReturn) * Math.exp(activeTrackingShock) - 1;
 
@@ -607,14 +810,17 @@
         const benchmarkGross = benchmarkValue * (1 + benchmarkReturn);
         const benchmarkAppreciation = Math.max(0, benchmarkGross - benchmarkBasis);
         const benchmarkRealizedGain = Math.min(benchmarkAppreciation, benchmarkGross * realizedGainPct);
-        const benchmarkAnnualTax = benchmarkRealizedGain * ltTaxRate;
+        let benchmarkAnnualTax = benchmarkRealizedGain * ltTaxRate;
         benchmarkBasis += benchmarkRealizedGain;
         benchmarkValue = benchmarkGross - benchmarkAnnualTax;
 
         const directGross = directValue * (1 + directIndexReturn);
         const directAppreciation = Math.max(0, directGross - directBasis);
-        const directRealizedGain = Math.min(directAppreciation, directGross * realizedGainPct * (1 - gainDeferralRate));
-        const directAnnualTax = directRealizedGain * ltTaxRate;
+        let directRealizedGain = Math.min(directAppreciation, directGross * realizedGainPct * (1 - gainDeferralRate));
+        if (p.gainBudgetEnabled) {
+          directRealizedGain = Math.min(directRealizedGain, directGross * Math.max(0, p.gainBudgetPct) / 100);
+        }
+        let directAnnualTax = directRealizedGain * ltTaxRate;
 
         const harvestedLoss = directGross * effectiveHarvestOpportunity * lossUtilization;
         const harvestTaxSavings = harvestedLoss * harvestBenefitRate;
@@ -634,6 +840,19 @@
         directBasis = Math.max(0, nextDirectBasis);
         directValue = nextDirectValue;
 
+        const bWithdraw = applyWithdrawal(benchmarkValue, benchmarkBasis, annualWithdrawal, ltTaxRate);
+        benchmarkValue = bWithdraw.value;
+        benchmarkBasis = bWithdraw.basis;
+        benchmarkAnnualTax += bWithdraw.tax;
+
+        const dWithdraw = applyWithdrawal(directValue, directBasis, annualWithdrawal, ltTaxRate);
+        directValue = dWithdraw.value;
+        directBasis = dWithdraw.basis;
+        directAnnualTax += dWithdraw.tax;
+
+        benchmarkPretax = Math.max(0, benchmarkPretax - annualWithdrawal);
+        directPretax = Math.max(0, directPretax - annualWithdrawal);
+
         totalBenchmarkAnnualTax += benchmarkAnnualTax;
         totalDirectAnnualTax += directAnnualTax;
         const discountFactor = Math.pow(1 + discountRate, year);
@@ -642,9 +861,11 @@
         pvHarvestTaxSavings += harvestTaxSavings / discountFactor;
         totalHarvestedLosses += harvestedLoss;
         totalHarvestTaxSavings += harvestTaxSavings;
+        cumulativeBenchmarkTax += benchmarkAnnualTax;
+        cumulativeDirectNetTax += directAnnualTax - harvestTaxSavings;
 
-        const benchmarkTerminalTax = p.terminalLiquidation ? Math.max(0, benchmarkValue - benchmarkBasis) * ltTaxRate : 0;
-        const directTerminalTax = p.terminalLiquidation ? Math.max(0, directValue - directBasis) * ltTaxRate : 0;
+        const benchmarkTerminalTaxNow = terminalLiquidation ? Math.max(0, benchmarkValue - benchmarkBasis) * ltTaxRate : 0;
+        const directTerminalTaxNow = terminalLiquidation ? Math.max(0, directValue - directBasis) * ltTaxRate : 0;
         const trackingBandFactor = Math.exp(trackingError * Math.sqrt(year));
 
         rows.push({
@@ -653,13 +874,17 @@
           directPretax,
           directPretaxLow: directPretax / trackingBandFactor,
           directPretaxHigh: directPretax * trackingBandFactor,
-          benchmarkAfterTax: benchmarkValue - benchmarkTerminalTax,
-          directAfterTax: directValue - directTerminalTax + outsideTaxSavings
+          benchmarkAfterTax: benchmarkValue - benchmarkTerminalTaxNow,
+          directAfterTax: directValue - directTerminalTaxNow + outsideTaxSavings,
+          benchmarkCumulativeTax: cumulativeBenchmarkTax,
+          directCumulativeTax: cumulativeDirectNetTax,
+          benchmarkCumulativeTaxWithLiquidation: cumulativeBenchmarkTax + benchmarkTerminalTaxNow,
+          directCumulativeTaxWithLiquidation: cumulativeDirectNetTax + directTerminalTaxNow
         });
       }
 
-      const terminalBenchmarkTax = p.terminalLiquidation ? Math.max(0, benchmarkValue - benchmarkBasis) * ltTaxRate : 0;
-      const terminalDirectTax = p.terminalLiquidation ? Math.max(0, directValue - directBasis) * ltTaxRate : 0;
+      const terminalBenchmarkTax = terminalLiquidation ? Math.max(0, benchmarkValue - benchmarkBasis) * ltTaxRate : 0;
+      const terminalDirectTax = terminalLiquidation ? Math.max(0, directValue - directBasis) * ltTaxRate : 0;
       const terminalDiscountFactor = Math.pow(1 + discountRate, years);
       const pvBenchmarkTerminalTax = terminalBenchmarkTax / terminalDiscountFactor;
       const pvDirectTerminalTax = terminalDirectTax / terminalDiscountFactor;
@@ -691,6 +916,8 @@
         directPretaxCagr,
         benchmarkAfterTaxCagr,
         directAfterTaxCagr,
+        benchmarkTaxDrag: benchmarkAfterTaxCagr - benchmarkPretaxCagr,
+        directTaxDrag: directAfterTaxCagr - directPretaxCagr,
         pretaxActiveReturn,
         afterTaxActiveReturn,
         taxAlpha,
@@ -722,6 +949,21 @@
           </div>
           <input class="range" type="range" data-key="${key}" min="${min}" max="${max}" step="${step}" value="${value}">
           <div class="minmax"><span>${prefix || ""}${min}${suffix || ""}</span><span>${prefix || ""}${max}${suffix || ""}</span></div>
+        </div>
+      `;
+    }
+
+    function selectControl(key, labelText, options, tip) {
+      return `
+        <div class="control">
+          <div class="control-top">
+            <div>${label(labelText, tip)}</div>
+            <div class="select-box">
+              <select data-select="${key}">
+                ${options.map(option => `<option value="${option.value}" ${params[key] === option.value ? "selected" : ""}>${option.label}</option>`).join("")}
+              </select>
+            </div>
+          </div>
         </div>
       `;
     }
@@ -760,8 +1002,8 @@
     function chartScales(rows, keys, width, height, pad) {
       const values = [];
       rows.forEach(row => keys.forEach(k => values.push(row[k])));
-      const min = Math.min(...values) * 0.96;
-      const max = Math.max(...values) * 1.04;
+      const min = Math.min(...values, 0) * 0.96;
+      const max = Math.max(...values, 1) * 1.04;
       const years = Math.max(1, rows[rows.length - 1].year);
       const xScale = year => pad + year * ((width - pad * 2) / years);
       const yScale = v => pad + (max - v) * ((height - pad * 2) / Math.max(1, max - min));
@@ -826,9 +1068,26 @@
           <circle cx="${s.xScale(years)}" cy="${s.yScale(final.directAfterTax)}" r="5" fill="#0f172a"></circle>
         </svg>
         <div class="legend">
-          <span class="legend-item"><span class="dot" style="background:#bbf7d0"></span> Combined tracking-error and tax-alpha band</span>
+          <span class="legend-item"><span class="dot" style="background:#bbf7d0"></span> Combined lower/higher outcome band</span>
           <span class="legend-item"><span class="dot" style="background:#64748b"></span> Benchmark after-tax</span>
           <span class="legend-item"><span class="dot" style="background:#0f172a"></span> Expected direct index after-tax</span>
+        </div>
+      `;
+    }
+
+    function taxPaidChart(rows) {
+      const width = 760, height = 330, pad = 48;
+      const s = chartScales(rows, ["benchmarkCumulativeTaxWithLiquidation", "directCumulativeTaxWithLiquidation"], width, height, pad);
+      return `
+        <svg class="chart" viewBox="0 0 ${width} ${height}">
+          ${gridLines(s.min, s.max, width, height, pad)}
+          ${[0, Math.round(s.years / 2), s.years].map(year => `<text x="${s.xScale(year) - 10}" y="${height - 14}" font-size="11" fill="#64748b">Y${year}</text>`).join("")}
+          <polyline points="${pointsFor(rows, "benchmarkCumulativeTaxWithLiquidation", s.xScale, s.yScale)}" fill="none" stroke="#64748b" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"></polyline>
+          <polyline points="${pointsFor(rows, "directCumulativeTaxWithLiquidation", s.xScale, s.yScale)}" fill="none" stroke="#0f172a" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"></polyline>
+        </svg>
+        <div class="legend">
+          <span class="legend-item"><span class="dot" style="background:#64748b"></span> Benchmark cumulative tax burden</span>
+          <span class="legend-item"><span class="dot" style="background:#0f172a"></span> Direct index cumulative tax burden</span>
         </div>
       `;
     }
@@ -873,23 +1132,112 @@
       `;
     }
 
-    function barBreakdown(lossValue, deferralValue) {
-      const data = [
-        { label: "Loss harvesting", value: lossValue },
-        { label: "Gain deferral", value: deferralValue }
-      ];
-      const maxAbs = Math.max(1, ...data.map(d => Math.abs(d.value)));
-      const width = 520, height = 260, zeroY = 130, barWidth = 110;
-      let body = `<line x1="40" x2="${width - 30}" y1="${zeroY}" y2="${zeroY}" stroke="#94a3b8"></line>`;
-      data.forEach((d, i) => {
-        const x = 95 + i * 220;
-        const barHeight = Math.min(105, Math.abs(d.value) / maxAbs * 105);
-        const y = d.value >= 0 ? zeroY - barHeight : zeroY;
-        body += `<rect x="${x}" y="${y}" width="${barWidth}" height="${barHeight}" rx="12" fill="#0f172a"></rect>`;
-        body += `<text x="${x + barWidth / 2}" y="${d.value >= 0 ? y - 10 : y + barHeight + 18}" text-anchor="middle" font-size="13" font-weight="800" fill="#0f172a">${dollars(d.value)}</text>`;
-        body += `<text x="${x + barWidth / 2}" y="230" text-anchor="middle" font-size="12" fill="#475569">${d.label}</text>`;
+    function horizontalBars(items, formatter, scaleToZero = true) {
+      const width = 760, height = 80 + items.length * 58, leftPad = 168, rightPad = 44;
+      const values = items.map(d => d.value);
+      const min = scaleToZero ? Math.min(0, ...values) : Math.min(...values);
+      const max = scaleToZero ? Math.max(0, ...values) : Math.max(...values);
+      const span = Math.max(0.0001, max - min);
+      const xScale = v => leftPad + ((v - min) / span) * (width - leftPad - rightPad);
+      const zeroX = xScale(0);
+      let body = `<line x1="${zeroX}" x2="${zeroX}" y1="24" y2="${height - 32}" stroke="#94a3b8" stroke-dasharray="5 6"></line>`;
+      items.forEach((d, i) => {
+        const y = 54 + i * 58;
+        const x1 = xScale(0);
+        const x2 = xScale(d.value);
+        const barX = Math.min(x1, x2);
+        const barW = Math.max(3, Math.abs(x2 - x1));
+        const fill = d.value >= 0 ? (d.color || "#0f172a") : "#dc2626";
+        body += `<text x="14" y="${y + 6}" font-size="13" font-weight="800" fill="#0f172a">${d.label}</text>`;
+        body += `<rect x="${barX}" y="${y - 14}" width="${barW}" height="30" rx="9" fill="${fill}"></rect>`;
+        body += `<text x="${x2 + (d.value >= 0 ? 8 : -8)}" y="${y + 7}" text-anchor="${d.value >= 0 ? "start" : "end"}" font-size="13" font-weight="800" fill="#0f172a">${formatter(d.value)}</text>`;
       });
       return `<svg class="chart" viewBox="0 0 ${width} ${height}">${body}</svg>`;
+    }
+
+    function barBreakdown(lossValue, deferralValue) {
+      return horizontalBars([
+        { label: "Loss harvesting", value: lossValue },
+        { label: "Gain deferral", value: deferralValue }
+      ], dollars);
+    }
+
+    function taxDragChart(result) {
+      return horizontalBars([
+        { label: "Benchmark tax drag", value: result.benchmarkTaxDrag, color: "#64748b" },
+        { label: "Direct index tax drag", value: result.directTaxDrag, color: "#0f172a" }
+      ], v => pct(v));
+    }
+
+    function benefitWaterfall(result, endingPretaxGap, taxAlphaDollars) {
+      return horizontalBars([
+        { label: "Benchmark after-tax ending value", value: result.benchmarkAfterTaxEnd, color: "#64748b" },
+        { label: "Pre-tax return difference", value: endingPretaxGap, color: endingPretaxGap >= 0 ? "#0f172a" : "#dc2626" },
+        { label: "Tax-management contribution", value: taxAlphaDollars, color: taxAlphaDollars >= 0 ? "#059669" : "#dc2626" },
+        { label: "Direct index after-tax ending value", value: result.directAfterTaxEnd, color: "#0f172a" }
+      ], dollars);
+    }
+
+    function buildStory(result, endingAfterTaxGap, taxAlphaDollars, lossValue, deferralValue) {
+      const direction = result.pretaxActiveReturn >= 0 ? "ahead of" : "behind";
+      const afterDirection = result.afterTaxActiveReturn >= 0 ? "ahead of" : "behind";
+      const mainEngine = Math.abs(lossValue) >= Math.abs(deferralValue) ? "loss harvesting" : "gain deferral";
+      return `
+        <div class="story-box">
+          <strong>Client story:</strong> In this scenario, the direct index is ${direction} the benchmark by <strong>${pct(Math.abs(result.pretaxActiveReturn))}</strong> per year before tax.
+          Tax management adds an estimated <strong>${pct(result.taxAlpha)}</strong> per year, or about <strong>${dollars(taxAlphaDollars)}</strong> of modeled value after removing the pre-tax return difference.
+          The client ends up ${afterDirection} the benchmark by <strong>${pct(Math.abs(result.afterTaxActiveReturn))}</strong> per year after tax, equal to about <strong>${dollars(endingAfterTaxGap)}</strong> over the horizon.
+          In this case, the larger tax lever is <strong>${mainEngine}</strong>.
+        </div>
+      `;
+    }
+
+    function comparisonCards(withLiquidation, withoutLiquidation) {
+      const diffWith = withLiquidation.directAfterTaxEnd - withLiquidation.benchmarkAfterTaxEnd;
+      const diffWithout = withoutLiquidation.directAfterTaxEnd - withoutLiquidation.benchmarkAfterTaxEnd;
+      return `
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr><th>Exit assumption</th><th class="right">After-tax advantage</th><th class="right">Tax alpha</th><th class="right">Direct ending value</th></tr>
+            </thead>
+            <tbody>
+              <tr><td class="bold">Sold at horizon ${info("Assumes the full portfolio is liquidated at the end of the period and embedded gains are taxed.")}</td><td class="right bold">${dollars(diffWith)}</td><td class="right">${pct(withLiquidation.taxAlpha)}</td><td class="right">${dollars(withLiquidation.directAfterTaxEnd)}</td></tr>
+              <tr><td class="bold">Continued deferral ${info("Assumes the portfolio is not sold at the end of the period. This can be relevant for ongoing holding, gradual transition, charitable giving, or estate planning.")}</td><td class="right bold">${dollars(diffWithout)}</td><td class="right">${pct(withoutLiquidation.taxAlpha)}</td><td class="right">${dollars(withoutLiquidation.directAfterTaxEnd)}</td></tr>
+            </tbody>
+          </table>
+        </div>
+      `;
+    }
+
+    function encodeScenario() {
+      const payload = { params, viewMode };
+      return btoa(encodeURIComponent(JSON.stringify(payload)));
+    }
+
+    function loadScenarioFromHash() {
+      if (!location.hash || location.hash.length < 2) return;
+      try {
+        const parsed = JSON.parse(decodeURIComponent(atob(location.hash.slice(1))));
+        params = { ...DEFAULTS, ...(parsed.params || {}) };
+        viewMode = parsed.viewMode || "simple";
+      } catch (e) {
+        // Ignore invalid hashes.
+      }
+    }
+
+    function copyScenarioLink() {
+      const url = location.origin + location.pathname + "#" + encodeScenario();
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(url).then(() => {
+          shareMessage = "Scenario link copied.";
+          render();
+        }).catch(() => {
+          window.prompt("Copy this scenario link:", url);
+        });
+      } else {
+        window.prompt("Copy this scenario link:", url);
+      }
     }
 
     function render() {
@@ -912,11 +1260,15 @@
       const lossValue = withBoth.directAfterTaxEnd - noLoss.directAfterTaxEnd;
       const deferralValue = withBoth.directAfterTaxEnd - noDeferral.directAfterTaxEnd;
 
+      const withLiquidation = simulate(params, { terminalLiquidation: true });
+      const withoutLiquidation = simulate(params, { terminalLiquidation: false });
+
       const endingPretaxGap = result.directPretax - result.benchmarkPretax;
       const endingAfterTaxGap = result.directAfterTaxEnd - result.benchmarkAfterTaxEnd;
       const taxAlphaDollars = endingAfterTaxGap - endingPretaxGap;
       const terminalPretaxBandText = `${dollars(result.directPretaxLow)} to ${dollars(result.directPretaxHigh)}`;
       const taxAlphaRangeText = `${pct(lowTaxAlpha)} to ${pct(highTaxAlpha)}`;
+      const advancedClass = viewMode === "advanced" ? "" : "hidden";
 
       document.getElementById("app").innerHTML = `
         <div class="page">
@@ -925,7 +1277,14 @@
               <div>
                 <div class="pill">Advisor education prototype</div>
                 <h1>Direct Indexing Tax Alpha Explorer</h1>
-                <p>Interactive illustration of pre-tax tracking, post-tax wealth, tax-loss harvesting, gain deferral, and how volatility and tracking error widen after-tax outcomes.</p>
+                <p>Interactive illustration of pre-tax tracking, post-tax wealth, tax-loss harvesting, gain deferral, cash flows, transition constraints, and how volatility and tracking error widen after-tax outcomes.</p>
+                <div class="hero-actions no-print">
+                  <button class="mode-btn ${viewMode === "simple" ? "active" : ""}" data-mode="simple">Simple mode</button>
+                  <button class="mode-btn ${viewMode === "advanced" ? "active" : ""}" data-mode="advanced">Advanced mode</button>
+                  <button class="action-btn light" id="copyLinkBtn">Copy scenario link</button>
+                  <button class="action-btn" id="printBtn">Print / save PDF</button>
+                  <span class="share-status">${shareMessage}</span>
+                </div>
               </div>
               <div class="scenario">
                 <strong>Current scenario</strong>
@@ -938,40 +1297,63 @@
           </header>
 
           <div class="layout">
-            <aside class="stack">
+            <aside class="stack no-print">
+              <section class="card translucent preset-card">
+                ${sectionHeader("Scenario presets", "Start with a realistic case, then tune the dials.", "Presets change assumptions only. They do not represent recommendations.")}
+                <div class="preset-grid">
+                  ${PRESETS.map(preset => `<button class="preset-tile" data-preset="${preset.id}"><strong>${preset.name}</strong><span>${preset.desc}</span></button>`).join("")}
+                </div>
+              </section>
+
               <section class="card translucent">
                 <div class="section-head">
                   <div>
-                    <h2 class="section-title">${label("Portfolio inputs", "These assumptions drive the expected return path, tracking range, tax timing, and opportunity to harvest losses.")}</h2>
-                    <p class="section-subtitle">Use client-specific assumptions when available.</p>
+                    <h2 class="section-title">${label("Core inputs", "These assumptions drive the expected return path, tracking range, tax timing, and opportunity to harvest losses.")}</h2>
+                    <p class="section-subtitle">Simple mode keeps the client conversation focused.</p>
                   </div>
                   <button class="reset" id="resetBtn">Reset</button>
                 </div>
                 <div class="controls">
                   ${slider("initialInvestment", "Initial investment", 100000, 10000000, 50000, "", "$", "Starting taxable portfolio value. Larger portfolios create larger dollar effects from the same return and tax assumptions.")}
                   ${slider("years", "Time horizon", 1, 30, 1, " yrs", "", "The number of years the client holds the strategy. Longer horizons make compounding and tax deferral more visible.")}
-                  ${slider("discountRate", "Tax deferral discount rate", 0, 12, .25, "%", "", "Used only to show the present value of future taxes. It does not change the investment return path.")}
                   ${slider("benchmarkReturn", "Benchmark return", -5, 15, .25, "%", "", "Expected annual pre-tax benchmark return. Volatility does not change this expected return.")}
                   ${slider("volatility", "Benchmark volatility", 3, 35, .5, "%", "", "A simplified annual volatility assumption. Higher volatility increases expected harvestable losses and widens the tax-alpha range.")}
-                  ${slider("activePretaxDiff", "Direct index pre-tax alpha / drag", -2.5, 2.5, .05, "%", "", "Expected annual pre-tax return difference versus the benchmark from fees, implementation, sampling, or active tilts.")}
                   ${slider("trackingError", "Tracking error", 0, 6, .1, "%", "", "Annualized active risk versus the benchmark. It widens the pre-tax and after-tax range but is not expected return by itself.")}
-                  ${slider("benchmarkRealizedGains", "Benchmark realized gains", 0, 10, .25, "%", "", "Annual taxable realized gains as a percent of portfolio value for the benchmark. Higher values create more taxes for the benchmark to overcome.")}
+                  ${slider("ltTaxRate", "Long-term tax rate", 0, 45, .25, "%", "", "Combined long-term capital gains tax rate assumption, including federal, state, and surtax if relevant.")}
+                  ${slider("stTaxRate", "Short-term / ordinary tax rate", 0, 55, .25, "%", "", "Combined short-term capital gains or ordinary income tax rate used to value short-term loss benefits.")}
+                  ${toggle("includeLossHarvesting", "Include loss harvesting", "Turns on current tax savings from harvested losses. Harvesting also lowers tax basis, which may create larger future gains.")}
+                  ${toggle("terminalLiquidation", "End-period liquidation tax", "Stress test that assumes the portfolio is sold at the end of the period and embedded gains are taxed.")}
                 </div>
               </section>
 
-              <section class="card translucent">
-                ${sectionHeader("Tax levers", "Separate harvesting from deferral.", "These controls show how much of the after-tax benefit comes from harvested losses, avoided gains, tax rates, and whether savings are reinvested.")}
+              <section class="card translucent ${advancedClass}">
+                ${sectionHeader("Advanced portfolio inputs", "Use these when an advisor wants more control.", "Advanced inputs handle implementation drag, discounting, contributions, withdrawals, embedded gains, and realized-gain assumptions.")}
                 <div class="controls">
-                  ${toggle("includeLossHarvesting", "Include loss harvesting", "Turns on current tax savings from harvested losses. Harvesting also lowers tax basis, which may create larger future gains.")}
+                  ${slider("discountRate", "Tax deferral discount rate", 0, 12, .25, "%", "", "Used only to show the present value of future taxes. It does not change the investment return path.")}
+                  ${slider("activePretaxDiff", "Direct index pre-tax alpha / drag", -2.5, 2.5, .05, "%", "", "Expected annual pre-tax return difference versus the benchmark from fees, implementation, sampling, or active tilts.")}
+                  ${slider("benchmarkRealizedGains", "Benchmark realized gains", 0, 10, .25, "%", "", "Annual taxable realized gains as a percent of portfolio value for the benchmark. Higher values create more taxes for the benchmark to overcome.")}
+                  ${slider("annualContribution", "Annual contribution", 0, 500000, 10000, "", "$", "New cash added at the beginning of each year. Contributions increase value and basis.")}
+                  ${slider("annualWithdrawal", "Annual withdrawal", 0, 500000, 10000, "", "$", "Cash taken out each year. Withdrawals can realize taxable gains if the portfolio has embedded appreciation.")}
+                  ${slider("startingEmbeddedGainPct", "Starting embedded gain/loss", -20, 80, 1, "%", "", "Starting unrealized gain as a percent of portfolio value. Negative values represent an embedded loss or high basis.")}
+                </div>
+              </section>
+
+              <section class="card translucent ${advancedClass}">
+                ${sectionHeader("Advanced tax levers", "Separate harvesting, deferral, and transition limits.", "These controls show how much of the after-tax benefit comes from harvested losses, avoided gains, tax rates, and gain budgets.")}
+                <div class="controls">
                   ${slider("harvestOpportunity", "Base harvest opportunity at 15% volatility", 0, 10, .25, "%", "", "Modeled annual harvested losses as a percent of portfolio value when volatility is 15%. The volatility dial scales this up or down.")}
+                  ${selectControl("harvestCalibration", "Harvest calibration", [
+                    { value: "conservative", label: "Conservative" },
+                    { value: "balanced", label: "Balanced" },
+                    { value: "optimistic", label: "Optimistic" }
+                  ], "Simple calibration factor for the volatility-to-harvesting assumption. Use conservative when you want a less aggressive tax-alpha estimate.")}
                   ${slider("lossUtilization", "Loss utilization", 0, 100, 5, "%", "", "Percent of harvested losses assumed useful to the client through gains, income offsets, or carryforwards.")}
                   ${slider("shortTermLossShare", "Losses used at short-term rate", 0, 100, 5, "%", "", "Share of useful losses valued at the short-term or ordinary income tax rate. Higher short-term use usually means larger current tax benefit.")}
                   ${toggle("includeGainDeferral", "Include gain deferral", "Turns on tax-aware trading that avoids some annual realized gains relative to the benchmark.")}
                   ${slider("gainDeferral", "Gain deferral rate", 0, 100, 5, "%", "", "Percent of benchmark-like annual realized gains avoided by the direct index. Deferred gains may still be taxed later.")}
-                  ${slider("ltTaxRate", "Long-term tax rate", 0, 45, .25, "%", "", "Combined long-term capital gains tax rate assumption, including federal, state, and surtax if relevant.")}
-                  ${slider("stTaxRate", "Short-term / ordinary tax rate", 0, 55, .25, "%", "", "Combined short-term capital gains or ordinary income tax rate used to value short-term loss benefits.")}
+                  ${toggle("gainBudgetEnabled", "Use realized-gain budget", "Caps annual realized gains in the direct index. This is useful for transition-aware cases with legacy holdings.")}
+                  ${slider("gainBudgetPct", "Annual gain budget", 0, 5, .25, "%", "", "Maximum direct-index realized gains as a percent of portfolio value when the gain-budget toggle is on.")}
                   ${toggle("reinvestTaxSavings", "Reinvest tax savings", "When on, harvested-loss tax savings are added back to the portfolio and compound. When off, they are counted as outside cash.")}
-                  ${toggle("terminalLiquidation", "End-period liquidation tax", "Stress test that assumes the portfolio is sold at the end of the period and embedded gains are taxed.")}
                 </div>
               </section>
             </aside>
@@ -986,8 +1368,29 @@
               </section>
 
               <section class="card">
+                ${sectionHeader("Scenario summary", "Plain-English explanation for advisor/client conversations.", "This summary updates automatically based on the selected assumptions.")}
+                ${buildStory(result, endingAfterTaxGap, taxAlphaDollars, lossValue, deferralValue)}
+              </section>
+
+              <section class="card">
                 ${sectionHeader("Tax alpha return bridge", "The advisor story in one chart: what happened before tax, what tax management added, and what the client kept after tax.", "The bridge uses annualized return differences. Tax alpha is the gap between post-tax relative return and pre-tax relative return.")}
                 ${returnBridgeChart(result.pretaxActiveReturn, result.taxAlpha, result.afterTaxActiveReturn)}
+              </section>
+
+              <div class="two-col">
+                <section class="card">
+                  ${sectionHeader("Tax drag comparison", "Direct indexing is often about reducing tax drag, not creating magic investment alpha.", "Tax drag is after-tax CAGR minus pre-tax CAGR. Less negative tax drag means more of the return was kept after tax.")}
+                  ${taxDragChart(result)}
+                </section>
+                <section class="card">
+                  ${sectionHeader("Liquidation versus continued deferral", "Exit plan matters. A future tax bill is not the same as taxes paid every year.", "This compares a full sale at the horizon with continued deferral at the horizon.")}
+                  ${comparisonCards(withLiquidation, withoutLiquidation)}
+                </section>
+              </div>
+
+              <section class="card">
+                ${sectionHeader("Benefit decomposition", "A dollar bridge from benchmark after-tax wealth to direct-index after-tax wealth.", "This separates pre-tax implementation difference from modeled tax-management contribution.")}
+                ${benefitWaterfall(result, endingPretaxGap, taxAlphaDollars)}
               </section>
 
               <div class="two-col">
@@ -1000,6 +1403,11 @@
                   ${wealthChart(result.rows, lowResult.rows, highResult.rows)}
                 </section>
               </div>
+
+              <section class="card">
+                ${sectionHeader("Cumulative tax burden over time", "Shows how tax timing differs between the benchmark and direct index.", "This includes annual taxes and, if toggled on, the end-period liquidation tax at each horizon.")}
+                ${taxPaidChart(result.rows)}
+              </section>
 
               <div class="lever-grid">
                 <section class="card">
@@ -1044,7 +1452,16 @@
                   <div class="soft-box"><strong>Volatility powers the harvesting range.</strong><br>At ${params.volatility.toFixed(1)}% volatility, expected harvest opportunity is ${pct(result.effectiveHarvestOpportunity, 2)}, with a range of ${pct(lowResult.effectiveHarvestOpportunity, 2)} to ${pct(highResult.effectiveHarvestOpportunity, 2)}.</div>
                   <div class="soft-box"><strong>Gain deferral is quiet but powerful.</strong><br>Avoided annual realized-gain taxes stay invested. Even when taxes are eventually paid, a future tax bill is worth less than the same tax paid today.</div>
                 </div>
-                <div class="disclaimer">Educational illustration only. This simplified model does not incorporate wash-sale rules, charitable gifting, estate treatment, changing tax law, dividends, security-level path dependency, transition taxes, fees, cash flows, or client-specific tax details unless reflected in the selected assumptions. The volatility-to-harvesting relationship, tracking-error band, and tax-alpha band are assumptions, not guarantees.</div>
+              </section>
+
+              <section class="card">
+                ${sectionHeader("Disclosures and model limitations", "Keep this visible before using the output with advisors or clients.", "This section is intentionally explicit to reduce overpromising.")}
+                <div class="disclosure-grid">
+                  <div class="disclaimer"><strong>Educational illustration only.</strong><br>This simplified model is hypothetical and is not investment, tax, legal, or accounting advice.</div>
+                  <div class="disclaimer"><strong>Tax benefits are not guaranteed.</strong><br>Losses must be available and usable. Wash-sale rules, client tax facts, and tax law changes can materially change outcomes.</div>
+                  <div class="disclaimer"><strong>Tracking error can help or hurt.</strong><br>The tool shows ranges, but actual security-level dispersion, cash flows, transition taxes, and implementation costs may differ.</div>
+                  <div class="disclaimer"><strong>Deferral is path-dependent.</strong><br>Future liquidation, charitable giving, estate treatment, account transitions, and withdrawals can change the value of deferral.</div>
+                </div>
               </section>
             </main>
           </div>
@@ -1059,6 +1476,16 @@
         input.addEventListener("input", e => {
           const key = e.target.dataset.key;
           params[key] = Number(e.target.value);
+          shareMessage = "";
+          render();
+        });
+      });
+
+      document.querySelectorAll("select[data-select]").forEach(select => {
+        select.addEventListener("change", e => {
+          const key = e.target.dataset.select;
+          params[key] = e.target.value;
+          shareMessage = "";
           render();
         });
       });
@@ -1067,6 +1494,24 @@
         button.addEventListener("click", e => {
           const key = e.currentTarget.dataset.toggle;
           params[key] = !params[key];
+          shareMessage = "";
+          render();
+        });
+      });
+
+      document.querySelectorAll("button[data-mode]").forEach(button => {
+        button.addEventListener("click", e => {
+          viewMode = e.currentTarget.dataset.mode;
+          render();
+        });
+      });
+
+      document.querySelectorAll("button[data-preset]").forEach(button => {
+        button.addEventListener("click", e => {
+          const preset = PRESETS.find(item => item.id === e.currentTarget.dataset.preset);
+          if (!preset) return;
+          params = preset.reset ? { ...DEFAULTS } : { ...params, ...preset.values };
+          shareMessage = `Applied: ${preset.name}`;
           render();
         });
       });
@@ -1075,12 +1520,19 @@
       if (reset) {
         reset.addEventListener("click", () => {
           params = { ...DEFAULTS };
+          shareMessage = "";
           render();
         });
       }
+
+      const copyBtn = document.getElementById("copyLinkBtn");
+      if (copyBtn) copyBtn.addEventListener("click", copyScenarioLink);
+
+      const printBtn = document.getElementById("printBtn");
+      if (printBtn) printBtn.addEventListener("click", () => window.print());
     }
 
+    loadScenarioFromHash();
     render();
   </script>
-</body>
-</html>
+</b
